@@ -1,0 +1,42 @@
+name: Practica CI-CD
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Descargar codigo
+        uses: actions/checkout@v6
+
+      - name: Verificar archivo HTML
+        run: |
+          if [ ! -f index.html ]; then
+            echo "ERROR: No existe index.html"
+            exit 1
+          fi
+          echo "Archivo index.html encontrado correctamente"
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Preparar archivos
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: '.'
+
+      - name: Desplegar aplicacion
+        id: deployment
+        uses: actions/deploy-pages@v4
