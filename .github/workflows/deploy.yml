@@ -1,3 +1,4 @@
+
 name: Practica CI-CD
 
 on:
@@ -28,6 +29,22 @@ jobs:
             exit 1
           fi
           echo "Archivo index.html encontrado correctamente"
+
+      - name: Generar logs
+        run: |
+          mkdir -p logs
+          FECHA=$(date +%Y-%m-%d)
+          ARCHIVO="logs/logs-$FECHA.txt"
+
+          echo "===== LOG DE EJECUCION CI-CD =====" > "$ARCHIVO"
+          echo "Fecha: $(date)" >> "$ARCHIVO"
+          echo "Repositorio: $GITHUB_REPOSITORY" >> "$ARCHIVO"
+          echo "Rama: $GITHUB_REF_NAME" >> "$ARCHIVO"
+          echo "Commit: $GITHUB_SHA" >> "$ARCHIVO"
+          echo "Estado: Verificacion de HTML exitosa" >> "$ARCHIVO"
+          echo "Archivo verificado: index.html" >> "$ARCHIVO"
+
+          cat "$ARCHIVO"
 
       - name: Configurar GitHub Pages
         uses: actions/configure-pages@v5
