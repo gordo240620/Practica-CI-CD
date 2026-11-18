@@ -7,13 +7,14 @@ on:
       - main
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -33,6 +34,7 @@ jobs:
       - name: Generar logs
         run: |
           mkdir -p logs
+
           FECHA=$(date +%Y-%m-%d)
           ARCHIVO="logs/logs-$FECHA.txt"
 
@@ -45,6 +47,21 @@ jobs:
           echo "Archivo verificado: index.html" >> "$ARCHIVO"
 
           cat "$ARCHIVO"
+
+      - name: Guardar logs en GitHub
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add logs/
+
+          if git diff --cached --quiet; then
+            echo "No hay cambios en los logs"
+          else
+            git commit -m "Agregar logs de ejecucion [skip ci]"
+            git push origin HEAD:${GITHUB_REF_NAME}
+            echo "Logs guardados correctamente en GitHub"
+          fi
 
       - name: Configurar GitHub Pages
         uses: actions/configure-pages@v5
